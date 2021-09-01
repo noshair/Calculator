@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         val buttonMinus=findViewById<Button>(R.id.buttonminus)
         val buttonMultiple=findViewById<Button>(R.id.buttonmiltiple)
         val buttonDivide=findViewById<Button>(R.id.buttondivide)
+        val buttonEqual=findViewById<Button>(R.id.buttonequal)
 
         val listenerbotton= View.OnClickListener { v->
             val selectedButton=v as Button
@@ -68,10 +69,38 @@ class MainActivity : AppCompatActivity() {
             pendingOperator =selectedButton
             displayOperation.text=pendingOperator
         }
+        //opeartions
+        buttonPlus.setOnClickListener(listeneroperation)
+        buttonMinus.setOnClickListener(listeneroperation)
+        buttonMultiple.setOnClickListener(listeneroperation)
+        buttonDivide.setOnClickListener(listeneroperation)
+        buttonEqual.setOnClickListener(listeneroperation)
     }
 
     private fun performOperation(value: String, selectedButton: String) {
         displayOperation.text=selectedButton
+        if(operand1==null){
+            operand1=value.toDouble()
+        }
+        else{
+            operand2=value.toDouble()
+            if (pendingOperator=="="){
+                pendingOperator=selectedButton
+            }
+            when(pendingOperator){
+                "=" -> operand1=operand2
+                "/" -> if (operand2==0.0){
+                    operand1= Double.NaN
+                }
+                else{
+                    operand1=operand1!! /operand2
+                }
+                "*" -> operand1=operand1!! * operand2
+                "-" -> operand1=operand1!! - operand2
+                "+" -> operand1=operand1!! + operand2
+            }
+        }
+        result.setText(operand1.toString())
+        valueget.setText("")
     }
-
 }
