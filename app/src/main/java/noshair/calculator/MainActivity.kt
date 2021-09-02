@@ -44,6 +44,13 @@ class MainActivity : AppCompatActivity() {
         val buttonMultiple = findViewById<Button>(R.id.buttonmiltiple)
         val buttonDivide = findViewById<Button>(R.id.buttondivide)
         val buttonEqual = findViewById<Button>(R.id.buttonequal)*/
+        clear.setOnClickListener(View.OnClickListener {
+            operand1=null
+            pendingOperator=null
+            editTextNumberSigned.setText("")
+            editTextNumberSigned2.setText("")
+            textView.setText("")
+        })
         val listenerbotton = View.OnClickListener { v ->
             val selectedButton = v as Button
             editTextNumberSigned.append(selectedButton.text)
