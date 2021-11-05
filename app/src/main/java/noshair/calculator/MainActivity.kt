@@ -7,6 +7,10 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import noshair.calculator.model.CalcukatorViewModel
 import java.lang.NumberFormatException
 
 class MainActivity : AppCompatActivity() {
@@ -15,14 +19,17 @@ class MainActivity : AppCompatActivity() {
     private val displayOperation by lazy(LazyThreadSafetyMode.NONE) { findViewById<TextView>(R.id.textView) }
 */
     //variables for holding value
-    private var operand1: Double? = null
-    private var pendingOperator:String? = "="
+
     val TEXT_CONTENTS = "Noshair"
     var state="state"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val viewModel= ViewModelProviders.of(this).get(CalcukatorViewModel::class.java)
+        viewModel.stringResult.observe(this, Observer<String> { stringResult -> editTextNumberSigned2.setText(stringResult)})
+        viewModel.stringNewNumber.observe(this, Observer<String> { stringNumber -> editTextNumberSigned.setText(stringNumber) })
+        viewModel.stringOperation.observe(this, Observer<String> { stringOperation -> textView.text = stringOperation})
        /* result = findViewById(R.id.editTextNumberSigned2)
         valueget = findViewById(R.id.editTextNumberSigned)*/
 
@@ -44,16 +51,12 @@ class MainActivity : AppCompatActivity() {
         val buttonMultiple = findViewById<Button>(R.id.buttonmiltiple)
         val buttonDivide = findViewById<Button>(R.id.buttondivide)
         val buttonEqual = findViewById<Button>(R.id.buttonequal)*/
-        clear.setOnClickListener(View.OnClickListener {
-            operand1=null
-            pendingOperator=null
-            editTextNumberSigned.setText("")
-            editTextNumberSigned2.setText("")
-            textView.setText("")
+        clear.setOnClickListener(View.OnClickListener { v ->
+            viewModel.clearPressed((v as Button).text.toString())
+
         })
         val listenerbotton = View.OnClickListener { v ->
-            val selectedButton = v as Button
-            editTextNumberSigned.append(selectedButton.text)
+            viewModel.digitPressed((v as Button).text.toString())
         }
         //set the listenser for operational buttons
         button10.setOnClickListener(listenerbotton)
@@ -68,17 +71,7 @@ class MainActivity : AppCompatActivity() {
         button9.setOnClickListener(listenerbotton)
         buttonDot.setOnClickListener(listenerbotton)
         val listeneroperation = View.OnClickListener { v ->
-            val selectedButton = (v as Button).text.toString()
-            try {
-                val value = editTextNumberSigned.text.toString().toDouble()
-                if (value != null) {
-                    performOperation(value, selectedButton)
-                }
-            } catch (e: NumberFormatException) {
-                editTextNumberSigned.setText("")
-            }
-            pendingOperator = selectedButton
-            textView.text = pendingOperator
+            viewModel.opanentPressed((v as Button).text.toString())
         }
         //opeartions
         buttonplus.setOnClickListener(listeneroperation)
@@ -88,31 +81,9 @@ class MainActivity : AppCompatActivity() {
         buttonequal.setOnClickListener(listeneroperation)
     }
 
-    private fun performOperation(value: Double, selectedButton: String) {
-        textView.text = selectedButton
-        if (operand1 == null) {
-            operand1 = value.toDouble()
-        } else {
-            if (pendingOperator == "=") {
-                pendingOperator = selectedButton
-            }
-            when (pendingOperator) {
-                "=" -> operand1 = value
-                "/" -> if (value == 0.0) {
-                    operand1 = Double.NaN
-                } else {
-                    operand1 = operand1!! / value
-                }
-                "*" -> operand1 = operand1!! * value
-                "-" -> operand1 = operand1!! - value
-                "+" -> operand1 = operand1!! + value
-            }
-        }
-        editTextNumberSigned2.setText(operand1.toString())
-        editTextNumberSigned.setText("")
-    }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+
+   /* override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         if(savedInstanceState.getBoolean(state,false))
         operand1 = savedInstanceState.getDouble(TEXT_CONTENTS)
@@ -130,5 +101,5 @@ class MainActivity : AppCompatActivity() {
             operand1=null
         }
         outState.putString("n", pendingOperator)
-    }
+    }*/
 }
